@@ -10,10 +10,15 @@ class Duration
   integer_attr :duration3
   integer_attr :duration4
   integer_attr :duration5
+  integer_attr :prefecture
+end
+
+module Area
+  CODE = '14' # ここにエリアコードを入れる
 end
 
 module Departure
-  Departures = {
+  DEPARTURES = {
     1 => '二子玉川駅',
     2 => '吉祥寺駅',
     3 => '赤羽駅',
@@ -40,26 +45,31 @@ def put_item(course_id, durations)
   duration.duration3 = durations.fetch(3)
   duration.duration4 = durations.fetch(4)
   duration.duration5 = durations.fetch(5)
+  duration.prefecture = Area::CODE
   duration.save
 end
 
 def lambda_handler(event:, context:)
-  area_code = '8'
-
   RakutenWebService.configure do |c|
     c.application_id = ENV['RAKUTEN_APPID']
     c.affiliate_id = ENV['RAKUTEN_AFID']
   end
 
-  courses = RakutenWebService::Gora::Course.search(areaCode: area_code)
-  course_id = courses.first['golfCourseId']
-  course_name = courses.first['golfCourseName']
+  1.upto(100) do |page|
+    courses = RakutenWebService::Gora::Course.search(areaCode: Area::CODE, page: page)
+    courses.each do |course|
+      course_id = course['golfCourseId']
+      course_name = course['golfCourseName']
+      next if course_name.include?('レッスン') # ゴルフ場以外の情報をこれでスキップしてる
 
-  durations = {}
-  Departure::Departures.each do |duration_id, departure|
-    durations.store(duration_id, duration_minutes(departure, course_name))
+      durations = {}
+      Departure::DEPARTURES.each do |duration_id, departure|
+        durations.store(duration_id, duration_minutes(departure, course_name))
+      end
+      put_item(course_id, durations)
+    end
+    break unless courses.has_next_page?
   end
-  put_item(course_id, durations)
 
   { statusCode: 200 }
 end
