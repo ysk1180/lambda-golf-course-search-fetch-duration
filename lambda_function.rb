@@ -6,6 +6,20 @@ class Duration
   include Aws::Record
   integer_attr :golf_course_id, hash_key: true
   integer_attr :duration1
+  integer_attr :duration2
+  integer_attr :duration3
+  integer_attr :duration4
+  integer_attr :duration5
+end
+
+module Departure
+  Departures = {
+    1 => '二子玉川駅',
+    2 => '吉祥寺駅',
+    3 => '赤羽駅',
+    4 => '錦糸町駅',
+    5 => '川崎駅'
+  }
 end
 
 def duration_minutes(departure, destination)
@@ -18,15 +32,18 @@ def duration_minutes(departure, destination)
   duration_seconds / 60
 end
 
-def put_item(course_id, duration)
+def put_item(course_id, durations)
   duration = Duration.new
   duration.golf_course_id = course_id
-  duration.duration1 = minutes
+  duration.duration1 = durations.fetch(1)
+  duration.duration2 = durations.fetch(2)
+  duration.duration3 = durations.fetch(3)
+  duration.duration4 = durations.fetch(4)
+  duration.duration5 = durations.fetch(5)
   duration.save
 end
 
 def lambda_handler(event:, context:)
-  departure = '二子玉川駅'
   area_code = '8'
 
   RakutenWebService.configure do |c|
@@ -38,8 +55,11 @@ def lambda_handler(event:, context:)
   course_id = courses.first['golfCourseId']
   course_name = courses.first['golfCourseName']
 
-  minutes = duration_minutes(departure, course_name)
-  put_item(course_id, minutes)
+  durations = {}
+  Departure::Departures.each do |duration_id, departure|
+    durations.store(duration_id, duration_minutes(departure, course_name))
+  end
+  put_item(course_id, durations)
 
   { statusCode: 200 }
 end
