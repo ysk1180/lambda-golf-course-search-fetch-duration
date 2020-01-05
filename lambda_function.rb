@@ -10,20 +10,22 @@ class Duration
   integer_attr :duration3
   integer_attr :duration4
   integer_attr :duration5
+  integer_attr :duration6
   integer_attr :prefecture
 end
 
 module Area
-  CODE = '14' # ここにエリアコードを入れる
+  CODE = '14' # ここにエリアコードを入れる 8:茨城県,11:埼玉県,12:千葉県,13:東京都,14:神奈川県
 end
 
 module Departure
   DEPARTURES = {
-    1 => '二子玉川駅',
-    2 => '吉祥寺駅',
-    3 => '赤羽駅',
-    4 => '錦糸町駅',
-    5 => '川崎駅'
+  #  1 => '二子玉川駅',
+  #  2 => '吉祥寺駅',
+  #  3 => '赤羽駅',
+  #  4 => '錦糸町駅',
+  #  5 => '川崎駅'
+    6 => '川越駅'
   }
 end
 
@@ -38,14 +40,17 @@ def duration_minutes(departure, destination)
 end
 
 def put_item(course_id, durations)
-  duration = Duration.new
-  duration.golf_course_id = course_id
-  duration.duration1 = durations.fetch(1)
-  duration.duration2 = durations.fetch(2)
-  duration.duration3 = durations.fetch(3)
-  duration.duration4 = durations.fetch(4)
-  duration.duration5 = durations.fetch(5)
-  duration.prefecture = Area::CODE
+#  duration = Duration.new
+#  duration.golf_course_id = course_id
+#  duration.duration1 = durations.fetch(1)
+#  duration.duration2 = durations.fetch(2)
+#  duration.duration3 = durations.fetch(3)
+#  duration.duration4 = durations.fetch(4)
+#  duration.duration5 = durations.fetch(5)
+#  duration.prefecture = Area::CODE
+  duration = Duration.find(golf_course_id: course_id)
+  return unless duration
+  duration.duration6 = durations.fetch(6)
   duration.save
 end
 
