@@ -12,6 +12,8 @@ class Duration
   integer_attr :duration5
   integer_attr :duration6
   integer_attr :duration7
+  integer_attr :duration8
+  integer_attr :duration9
   integer_attr :prefecture
 end
 
@@ -27,7 +29,9 @@ module Departure
   #  4 => '錦糸町駅',
   #  5 => '川崎駅'
   #  6 => '川越駅'
-    7 => '飯田橋駅'
+  #  7 => '飯田橋駅'
+  8 => '恵比寿駅',
+  9 => '品川駅'
   }
 end
 
@@ -53,7 +57,9 @@ def put_item(course_id, durations)
   duration = Duration.find(golf_course_id: course_id)
   return unless duration
 #  duration.duration6 = durations.fetch(6)
-  duration.duration7 = durations.fetch(7)
+#  duration.duration7 = durations.fetch(7)
+  duration.duration8 = durations.fetch(8)
+  duration.duration9 = durations.fetch(9)
   duration.save
 end
 
